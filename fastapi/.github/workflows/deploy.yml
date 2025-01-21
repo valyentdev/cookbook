@@ -1,0 +1,52 @@
+name: Build and Deploy to Valyent
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Login to Valyent Registry
+        uses: docker/login-action@v3
+        with:
+          registry: registry.valyent.cloud
+          username: ${{ github.actor }}
+          password: ${{ secrets.VALYENT_API_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: registry.valyent.cloud/${{ secrets.VALYENT_ORG }}/${{ secrets.VALYENT_APP }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=sha,format=long
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Install Valyent CLI
+        run: curl -L https://cli.valyent.cloud | sh
+
+      - name: Deploy to Valyent
+        run: |
+          valyent deploy --no-build \
+            --organization ${{ secrets.VALYENT_ORG }} \
+            --fleet ${{ secrets.VALYENT_APP }}
