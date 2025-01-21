@@ -1,4 +1,4 @@
-name: Build and Deploy to Valyent
+name: Build and deploy to Valyent
 
 on:
   push:
@@ -9,8 +9,6 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
 
     steps:
       - name: Checkout repository
@@ -28,25 +26,20 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: registry.valyent.cloud/${{ secrets.VALYENT_ORG }}/${{ secrets.VALYENT_APP }}
-          tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=sha,format=long
-            type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: fastapi
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-
+          
       - name: Install Valyent CLI
         run: curl -L https://cli.valyent.cloud | sh
 
       - name: Authenticate Valyent CLI
-        run: ~/.valyent/bin/valyent auth login --api-key ${{ secrets.VALYENT_API_KEY }} --organization ${{ secrets.VALYENT_ORG }}
+        run: |
+          ~/.valyent/bin/valyent auth login \
+          --api-key ${{ secrets.VALYENT_API_KEY }} \
+          --organization ${{ secrets.VALYENT_ORG }}
 
       - name: Deploy to Valyent
         run: |
