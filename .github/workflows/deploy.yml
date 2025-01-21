@@ -46,7 +46,7 @@ jobs:
         run: curl -L https://cli.valyent.cloud | sh
 
       - name: Authenticate Valyent CLI
-        run: ~/.valyent/bin/valyent login --api-key ${{ secrets.VALYENT_API_KEY }} --organization ${{ secrets.VALYENT_ORG }}
+        run: ~/.valyent/bin/valyent auth login --api-key ${{ secrets.VALYENT_API_KEY }} --organization ${{ secrets.VALYENT_ORG }}
 
       - name: Deploy to Valyent
         run: |
