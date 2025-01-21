@@ -31,7 +31,8 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: fastapi
-          
+          push: true
+
       - name: Install Valyent CLI
         run: curl -L https://cli.valyent.cloud | sh
 
