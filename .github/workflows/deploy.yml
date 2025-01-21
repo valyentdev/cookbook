@@ -19,7 +19,6 @@ jobs:
       - name: Login to Valyent Registry
         uses: docker/login-action@v3
         with:
-          context: fastapi
           registry: registry.valyent.cloud
           username: ${{ github.actor }}
           password: ${{ secrets.VALYENT_API_TOKEN }}
@@ -38,7 +37,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: .
+          context: fastapi
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
