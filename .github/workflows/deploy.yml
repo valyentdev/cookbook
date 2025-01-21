@@ -21,7 +21,7 @@ jobs:
         with:
           registry: registry.valyent.cloud
           username: ${{ github.actor }}
-          password: ${{ secrets.VALYENT_API_TOKEN }}
+          password: ${{ secrets.VALYENT_API_KEY }}
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
