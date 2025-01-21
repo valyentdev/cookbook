@@ -45,6 +45,12 @@ jobs:
       - name: Install Valyent CLI
         run: curl -L https://cli.valyent.cloud | sh
 
+      - name: Source Valyent CLI
+        run: source /home/runner/.bash_profile
+
+      - name: Authenticate Valyent CLI
+        run: valyent login --api-key ${{ secrets.VALYENT_API_KEY }} --organization ${{ secrets.VALYENT_ORG }}
+
       - name: Deploy to Valyent
         run: |
           valyent deploy --no-build \
