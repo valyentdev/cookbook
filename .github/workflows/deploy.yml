@@ -19,6 +19,7 @@ jobs:
       - name: Login to Valyent Registry
         uses: docker/login-action@v3
         with:
+          context: fastapi
           registry: registry.valyent.cloud
           username: ${{ github.actor }}
           password: ${{ secrets.VALYENT_API_TOKEN }}
