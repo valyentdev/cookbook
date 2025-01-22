@@ -1,10 +1,12 @@
-name: Build and deploy to Valyent
+name: Build and Deploy to Valyent
 
 on:
   push:
-    branches: ["main"]
+    branches:
+      - ${{ github.event.repository.default_branch }}
   pull_request:
-    branches: ["main"]
+    branches:
+      - ${{ github.event.repository.default_branch }}
 
 jobs:
   build-and-deploy:
@@ -21,8 +23,8 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.VALYENT_API_KEY }}
 
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
+      - name: Extract metadata for Docker
+        id: metadata
         uses: docker/metadata-action@v5
         with:
           images: registry.valyent.cloud/${{ secrets.VALYENT_ORG }}/${{ secrets.VALYENT_APP }}
@@ -32,15 +34,20 @@ jobs:
         with:
           context: fastapi
           push: true
+          tags: ${{ steps.metadata.outputs.tags }}
+          labels: ${{ steps.metadata.outputs.labels }}
 
       - name: Install Valyent CLI
-        run: curl -L https://cli.valyent.cloud | sh
+        run: |
+          curl -L https://cli.valyent.cloud | sh
 
       - name: Authenticate Valyent CLI
+        env:
+          VALYENT_API_KEY: ${{ secrets.VALYENT_API_KEY }}
         run: |
           ~/.valyent/bin/valyent auth login \
-          --api-key ${{ secrets.VALYENT_API_KEY }} \
-          --organization ${{ secrets.VALYENT_ORG }}
+            --api-key $VALYENT_API_KEY \
+            --organization ${{ secrets.VALYENT_ORG }}
 
       - name: Deploy to Valyent
         run: |
